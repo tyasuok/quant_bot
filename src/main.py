@@ -28,6 +28,12 @@ if __name__ == "__main__":
     if log:
         # se obter sucesso na incialização/login printa as informações da conta
         print(f'ACCOUNT INFO: {mt5.account_info()}')
+        symbols=mt5.symbols_get()
+        count=0
+        for s in symbols:
+            count+=1
+            print("{}. {}".format(count,s.name))
+            if count==5: break
     else:
         print("Nope")
         sys.exit()
@@ -40,6 +46,7 @@ if __name__ == "__main__":
     #         time.sleep(5)
     #     except Exception as e:
     #         print(i, e)
+    print(strat())
 
     
     # eu comentei a ordem de compra pra fora pra não rodar sem querer
