@@ -5,9 +5,7 @@ import datetime
 from calendar import monthrange
 import time
 
-tick = ["MGLU3.SA"]
-
-def get_monthly_rets(tick_pickle="ibovespa_tickers.zip"):
+def get_monthly_rets(tick_pickle="../data/ibovespa_tickers.zip"):
     """
     Devolve os retornos mensais, além de exportá-los pra returns_last_month.zip (pickle)
     """
@@ -41,16 +39,20 @@ def get_monthly_rets(tick_pickle="ibovespa_tickers.zip"):
             count += 1
     
     rets = pd.DataFrame(rets, index=[0])
-    rets.to_pickle("returns_last_month.zip")
+    rets.to_pickle("../data/returns_last_month.zip")
     return rets
 
-def strat(best_pickle="returns_last_month.zip"):
+def strat(best_pickle="../data/returns_last_month.zip"):
     """
     Pega um pickle com os retornos mensais e escolhe os 10 melhores
     """
-    df = pd.read_pickle("returns_last_month.zip")
+    df = pd.read_pickle(best_pickle)
     lst = df.sort_values(0, axis=1, ascending=False).iloc[0, :10].index.str[:-4] + "F"
 
     return list(lst)
 
-# get_data()
+def test():
+    a = pd.read_csv("../data/haha.csv")
+    print(a)
+
+test()
