@@ -30,6 +30,7 @@ if __name__ == "__main__":
         print(f'ACCOUNT INFO: {mt5.account_info()}')
         symbols=mt5.symbols_get()
         count=0
+        # printa alguns symbols que pega do metatrader
         for s in symbols:
             count+=1
             print("{}. {}".format(count,s.name))
@@ -37,17 +38,18 @@ if __name__ == "__main__":
     else:
         print("Nope")
         sys.exit()
+    
+    """
+    Essas funções estão comentadas pra não rodar elas sem querer
+    """
 
+    # função importada de functions.py que abre uma ordem de compra de 1 unidade
     # open_order("SMLS3F", "buy", 1)
 
+    # esse pega a estratégia montada em strategy.py (que retorna uma lista de ações) e compra um de cada
     # for i in strat():
     #     try:
     #         open_order(i, "buy", 1)
     #         time.sleep(5)
     #     except Exception as e:
     #         print(i, e)
-    print(strat())
-
-    
-    # eu comentei a ordem de compra pra fora pra não rodar sem querer
-    # open_order("GPBUSD", "buy")
