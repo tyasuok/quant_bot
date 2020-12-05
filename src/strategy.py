@@ -7,7 +7,8 @@ import time
 
 def get_monthly_rets(tick_pickle="../data/ibovespa_tickers.zip"):
     """
-    Devolve os retornos mensais, além de exportá-los pra returns_last_month.zip (pickle)
+    Devolve os retornos mensais, além de exportá-los
+    (junto dos respectivos tickers) pra returns_last_month.zip (pickle)
     """
     tickers = pd.read_pickle(tick_pickle)
     tickers = tickers + ".SAO"
@@ -45,14 +46,9 @@ def get_monthly_rets(tick_pickle="../data/ibovespa_tickers.zip"):
 def strat(best_pickle="../data/returns_last_month.zip"):
     """
     Pega um pickle com os retornos mensais e escolhe os 10 melhores
+    o nome está genérico para mostrar na reunião e ñ dar spoiler pros membros novos
     """
     df = pd.read_pickle(best_pickle)
     lst = df.sort_values(0, axis=1, ascending=False).iloc[0, :10].index.str[:-4] + "F"
 
     return list(lst)
-
-def test():
-    a = pd.read_csv("../data/haha.csv")
-    print(a)
-
-test()
