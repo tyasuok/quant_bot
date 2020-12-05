@@ -16,5 +16,5 @@ rico_demo = {
     "server": "Rico-Demo"
 }
 
-TELE_TOKEN =  # o token do bot
-CHAT_ID =  # id do grupo q eu fiz pra testar
+TELE_TOKEN =  "1496681905:AAGNUmXBHLpXRN4VkcFao1emrBUKW1bRMEs" # o token do bot
+CHAT_ID = "-356143379" # id do grupo q eu fiz pra testar
