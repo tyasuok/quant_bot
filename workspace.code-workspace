@@ -1,0 +1,30 @@
+{
+	"folders": [
+        {
+            "path": "..\\..\\ProgProjects\\Cartola"
+        },
+        {
+            "path": "..\\..\\matfinElectron"
+        },
+        {
+            "path": "..\\..\\ProgProjects\\general_math"
+        },
+        {
+            "path": "..\\betfair"
+        },
+        {
+            "path": "..\\autoclicker"
+        },
+        {
+            "path": "..\\turtles"
+        },
+        {
+            "path": "."
+        }
+    ],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "matfinWeb",
+        "python.pythonPath": "C:\\Users\\Thomas\\Envs\\quant_bot\\Scripts\\python.exe",
+        "editor.detectIndentation": false
+	}
+}
