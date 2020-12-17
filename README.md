@@ -11,7 +11,10 @@
 <img src=https://i.ibb.co/v4GHsBt/metatrader.png></img>
 
 1. Ao clicar em Accounts há a opção Login to Trade Account, após realizar o login a conta irá aparecer ali
+<img src=https://i.ibb.co/qRm04xS/1.png></img>
 2. Antes de poder utilizar qualquer script é necessário habilitar a opção Algo Trading (a setinha verde indica que está habilitado)
+<img src=https://i.ibb.co/M71gBrH/2.png></img>
 3. A aba do Market Watch é importante, pois só é possível realizar operações através de script se o símbolo estiver presente nela
+<img src=https://i.ibb.co/31syXtM/3.png></img>
 
 Vá até o diretório `/quant_bot/src` e rode: `py main.py`
