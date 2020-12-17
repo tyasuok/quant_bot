@@ -25,26 +25,23 @@ if __name__ == "__main__":
     """
     # o log inicializa o programa e faz o login, ele retorna True se tiver sido bem sucedido e False se não
     log = mt5.initialize(login=rico_demo["login"], password=rico_demo["passw"], server=rico_demo["server"])
-    if log:
-        # se obter sucesso na incialização/login printa as informações da conta
-        print(f'ACCOUNT INFO: {mt5.account_info()}')
-        symbols=mt5.symbols_get()
-        count=0
-        # printa alguns symbols que pega do metatrader
-        for s in symbols:
-            count+=1
-            print("{}. {}".format(count,s.name))
-            if count==5: break
-    else:
-        print("Nope")
-        sys.exit()
+    print(f'ACCOUNT INFO: {mt5.account_info()}') if log else print("Nope"); sys.exit()
+
+    # prints symbols in the mkt watch
+    # symbols=mt5.symbols_get()
+    # count=0
+    # # printa alguns symbols que pega do metatrader
+    # for s in symbols:
+    #     count+=1
+    #     print("{}. {}".format(count,s.name))
+    #     if count==5: break
     
     """
     Essas funções estão comentadas pra não rodar elas sem querer
     """
 
     # função importada de functions.py que abre uma ordem de compra de 1 unidade
-    # open_order("SMLS3F", "buy", 1)
+    open_order("SMLS3F", "buy", 1)
 
     # esse pega a estratégia montada em strategy.py (que retorna uma lista de ações) e compra um de cada
     # for i in strat():
