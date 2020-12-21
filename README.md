@@ -23,3 +23,17 @@
 <img src=https://i.ibb.co/31syXtM/3.png></img>
 
 Vá até o diretório `/quant_bot/src` e rode: `py main.py`
+
+## Como criar uma branch
+
+### Primeiro setup
+
+1. git checkout -b branch_name (cria uma nova branch com o nome branch_name)
+2. git add . (para adicionar o código que você clonou)
+
+0. git branch --show-current (pra verificar se você está na sua branch criada)
+1. fazer as alterações no código
+2. git add . (pra adicionar as alterações)
+3. git commit -m "commit message"
+4. git push --set-upstream https://github.com/thomas-yasuoka/quant_bot
+5. Abrir a pull request a partir do github
