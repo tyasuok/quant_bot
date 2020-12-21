@@ -44,10 +44,10 @@ if __name__ == "__main__":
     # open_order("SMLS3F", "buy", 1)
 
     # esse pega a estratégia montada em strategy.py (que retorna uma lista de ações) e compra um de cada
-    for i in strat():
-        try:
-            mt5.symbol_select(i)
-            open_order(i, "buy", 1)
-            time.sleep(5)
-        except Exception as e:
-            print(i, e)
+    # for i in strat():
+    #     try:
+    #         mt5.symbol_select(i)
+    #         open_order(i, "buy", 1)
+    #         time.sleep(5)
+    #     except Exception as e:
+    #         print(i, e)
