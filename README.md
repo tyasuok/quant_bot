@@ -31,6 +31,8 @@ Vá até o diretório `/quant_bot/src` e rode: `py main.py`
 1. git checkout -b branch_name (cria uma nova branch com o nome branch_name)
 2. git add . (para adicionar o código que você clonou)
 
+## Após o setup
+
 1. git branch --show-current (pra verificar se você está na sua branch criada)
 2. fazer as alterações no código
 3. git add . (pra adicionar as alterações)
