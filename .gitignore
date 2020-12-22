@@ -2,3 +2,4 @@ src/passwords.py
 workspace.code-workspace
 testing.ipynb
 .ipynb_checkpoints
+__pycache__
