@@ -1,5 +1,5 @@
 # obtain all the functions from the file functions.py
-from functions import*
+from functions_plot import*
 
 
 # dictionary that will provide data to portfolio's performance graphic 
