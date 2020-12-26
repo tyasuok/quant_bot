@@ -41,7 +41,7 @@ if __name__ == "__main__":
     """
 
     # função importada de functions.py que abre uma ordem de compra de 1 unidade
-    # open_order("SMLS3F", "buy", 1)
+    print(open_order("SMLS3F", "buy", 1))
 
     # esse pega a estratégia montada em strategy.py (que retorna uma lista de ações) e compra um de cada
     # for i in strat():

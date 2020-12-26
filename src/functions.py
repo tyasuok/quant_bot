@@ -1,6 +1,25 @@
 import requests
+import datetime
+import sqlite3
 import MetaTrader5 as mt5
 from passwords import *
+
+def _make_table():
+    conn = sqlite3.connect("../data/orders.db")
+    c = conn.cursor()
+    c.execute("""
+            CREATE TABLE IF NOT EXISTS open (
+                order_date DATETIME,
+                retcode INTEGER,
+                deal INTEGER,
+                order_n INTEGER,
+                volume REAL,
+                price REAL,
+                bid REAL,
+                ask REAL,
+                comment TEXT
+            )
+            """)
 
 def open_order(symbol, order_type, volume):
     """
@@ -27,11 +46,27 @@ def open_order(symbol, order_type, volume):
         "type_filling": mt5.ORDER_FILLING_RETURN
     }
     # executes the order
-    x = mt5.order_send(request)
+    order = mt5.order_send(request)
 
     # sends the information through the telegram bot to the group
-    text = f'Símbolo: {request["symbol"]}.\nComentário: {x.comment}.\nPreço da compra: {x.price}.\nVolume da compra: {x.volume}.'
-    requests.post(f"https://api.telegram.org/bot{TELE_TOKEN}/sendMessage?chat_id={CHAT_ID}&text={text}")
+    text = f'Símbolo: {request["symbol"]}.\nComentário: {order.comment}.\nPreço da compra: {order.price}.\nVolume da compra: {order.volume}.'
+    # requests.post(f"https://api.telegram.org/bot{TELE_TOKEN}/sendMessage?chat_id={CHAT_ID}&text={text}")
+
+    conn = sqlite3.connect("../data/orders.db")
+    c = conn.cursor()
+    c.execute("""
+            INSERT OR IGNORE INTO open
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                 datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), order.retcode, order.order,
+                 order.deal, order.volume, order.price, order.bid, order.ask, order.comment   
+                 )
+            )
+    conn.commit()
+    return order
+
+def close_order():
+    pass
 
 def send_image(path):
     with open(path, "rb") as img:
