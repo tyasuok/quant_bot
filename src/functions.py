@@ -14,6 +14,7 @@ def _make_table():
     c = conn.cursor()
     c.execute("""
             CREATE TABLE IF NOT EXISTS open (
+                symbol TEXT,
                 order_date DATETIME,
                 retcode INTEGER,
                 deal INTEGER,
@@ -23,8 +24,9 @@ def _make_table():
                 bid REAL,
                 ask REAL,
                 comment TEXT
-            )
+            );
             """)
+_make_table()
 
 def open_order(symbol, order_type, volume, order=None):
     """
@@ -74,12 +76,13 @@ def open_order(symbol, order_type, volume, order=None):
 
     conn = sqlite3.connect("../data/orders.db")
     c = conn.cursor()
+    # verificar a sequencia order.order, order.deal
     c.execute("""
             INSERT OR IGNORE INTO open
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
             """, (
-                 datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), order.retcode, order.order,
-                 order.deal, order.volume, order.price, order.bid, order.ask, order.comment   
+                 symbol, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), order.retcode,
+                 order.order, order.deal, order.volume, order.price, order.bid, order.ask, order.comment   
                  )
             )
     conn.commit()
@@ -87,6 +90,17 @@ def open_order(symbol, order_type, volume, order=None):
 
 def close_order():
     pass
+
+def sell_all():
+    
+    conn = sqlite3.connect("../data/orders.db")
+    c = conn.cursor()
+    query = list(c.execute("""SELECT symbol, volume, order_n
+                              FROM open;"""))
+    conn.close()
+
+    for i in query:
+        open_order(i[0], "sell", i[1], i[2])
 
 # Plotting functions
 

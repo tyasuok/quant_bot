@@ -41,14 +41,18 @@ if __name__ == "__main__":
     """
 
     # função importada de functions.py que abre uma ordem de compra de 1 unidade
-    mt5.symbol_select("SMLS3F")
-    print(open_order("SMLS3F", "buy", 1))
+    # mt5.symbol_select("SMLS3F")
+    # print(open_order("SMLS3F", "buy", 1))
 
     # esse pega a estratégia montada em strategy.py (que retorna uma lista de ações) e compra um de cada
-    # for i in strat():
-    #     try:
-    #         mt5.symbol_select(i)
-    #         open_order(i, "buy", 1)
-    #         time.sleep(5)
-    #     except Exception as e:
-    #         print(i, e)
+    for i in strat():
+        try:
+            mt5.symbol_select(i)
+            open_order(i, "buy", 1)
+            # time.sleep(5)
+        except Exception as e:
+            print(i, e)
+
+    time.sleep(10)
+
+    sell_all()
