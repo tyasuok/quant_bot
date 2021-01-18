@@ -9,7 +9,7 @@ import pandas as pd
 yf.pdr_override()
 from pandas_datareader import data as web
 
-def _make_table():
+def _make_tables():
     conn = sqlite3.connect("../data/orders.db")
     c = conn.cursor()
     c.execute("""
@@ -26,9 +26,29 @@ def _make_table():
                 comment TEXT
             );
             """)
-_make_table()
 
-def open_order(symbol, order_type, volume, order=None):
+    c.execute("""
+            CREATE TABLE IF NOT EXISTS close (
+                symbol TEXT,
+                order_date DATETIME,
+                retcode INTEGER,
+                deal INTEGER,
+                order_n INTEGER,
+                volume REAL,
+                price REAL,
+                bid REAL,
+                ask REAL,
+                comment TEXT
+            );
+            """)
+
+def _reset_tables():
+    conn = sqlite3.connect("../data/orders.db")
+    c = conn.cursor()
+    c.execute("DROP TABLE open;")
+    c.execute("DROP TABLE close;")
+
+def open_order(symbol, order_type, volume):
     """
     Function that opens an order, atm either buy or sell
     """
@@ -41,30 +61,16 @@ def open_order(symbol, order_type, volume, order=None):
     }
 
     # creates the request, maybe reconsider the name cause of the requests lib
-    if order:
-        request = {
-            "action": mt5.TRADE_ACTION_DEAL,
-            "magic": 69420,
-            "order": order,
-            "symbol": symbol,
-            "volume": float(volume),
-            "type": order_types[order_type][0],
-            "price": order_types[order_type][1],
-            "deviation": 2, # em pontos
-            "type_time": mt5.ORDER_TIME_GTC, # good till cancelled
-            "type_filling": mt5.ORDER_FILLING_RETURN
-        }
-    else:
-        request = {
-            "action": mt5.TRADE_ACTION_DEAL,
-            "magic": 69420,
-            "symbol": symbol,
-            "volume": float(volume),
-            "type": order_types[order_type][0],
-            "price": order_types[order_type][1],
-            "deviation": 2, # em pontos
-            "type_time": mt5.ORDER_TIME_GTC, # good till cancelled
-            "type_filling": mt5.ORDER_FILLING_RETURN
+    request = {
+        "action": mt5.TRADE_ACTION_DEAL,
+        "magic": 69420,
+        "symbol": symbol,
+        "volume": float(volume),
+        "type": order_types[order_type][0],
+        "price": order_types[order_type][1],
+        "deviation": 2, # em pontos
+        "type_time": mt5.ORDER_TIME_GTC, # good till cancelled
+        "type_filling": mt5.ORDER_FILLING_RETURN
         }
 
     # executes the order
@@ -88,8 +94,52 @@ def open_order(symbol, order_type, volume, order=None):
     conn.commit()
     return order
 
-def close_order():
-    pass
+def close_order(symbol, order_type, volume, order):
+    """
+    Function that opens an order, atm either buy or sell
+    """
+    symbol_inf = mt5.symbol_info_tick(symbol)
+
+    # dict of the order types, so we get the right price (ask vs bid)
+    order_types = {
+        "buy": [mt5.ORDER_TYPE_BUY, symbol_inf.ask],
+        "sell": [mt5.ORDER_TYPE_SELL, symbol_inf.bid]
+    }
+
+    # creates the request, maybe reconsider the name cause of the requests lib
+    request = {
+        "action": mt5.TRADE_ACTION_DEAL,
+        "magic": 69420,
+        "order": order,
+        "symbol": symbol,
+        "volume": float(volume),
+        "type": order_types[order_type][0],
+        "price": order_types[order_type][1],
+        "deviation": 2, # em pontos
+        "type_time": mt5.ORDER_TIME_GTC, # good till cancelled
+        "type_filling": mt5.ORDER_FILLING_RETURN
+        }
+
+    # executes the order
+    order = mt5.order_send(request)
+
+    # sends the information through the telegram bot to the group
+    text = f'Símbolo: {request["symbol"]}.\nComentário: {order.comment}.\nPreço da compra: {order.price}.\nVolume da compra: {order.volume}.'
+    # requests.post(f"https://api.telegram.org/bot{TELE_TOKEN}/sendMessage?chat_id={CHAT_ID}&text={text}")
+
+    conn = sqlite3.connect("../data/orders.db")
+    c = conn.cursor()
+    # verificar a sequencia order.order, order.deal
+    c.execute("""
+            INSERT OR IGNORE INTO close
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+            """, (
+                 symbol, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), order.retcode,
+                 order.order, order.deal, order.volume, order.price, order.bid, order.ask, order.comment   
+                 )
+            )
+    conn.commit()
+    return order
 
 def sell_all():
     
@@ -100,7 +150,7 @@ def sell_all():
     conn.close()
 
     for i in query:
-        open_order(i[0], "sell", i[1], i[2])
+        close_order(i[0], "sell", i[1], i[2])
 
 # Plotting functions
 
@@ -166,3 +216,10 @@ def pic_portfolio_performance(rets):
     name = "performace_quant.jpg"
     print(plt.savefig(name, bbox_inches = "tight"))
     return (name)
+
+if __name__ == "__main__":
+    reset_check = input("Do you want to reset the tables? (type n if this is the initial setup) (y/n) ")
+    if reset_check == "y":
+        _reset_tables()
+
+    _make_tables()
