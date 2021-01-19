@@ -78,7 +78,7 @@ def open_order(symbol, order_type, volume):
 
     # sends the information through the telegram bot to the group
     text = f'Símbolo: {request["symbol"]}.\nComentário: {order.comment}.\nPreço da compra: {order.price}.\nVolume da compra: {order.volume}.'
-    # requests.post(f"https://api.telegram.org/bot{TELE_TOKEN}/sendMessage?chat_id={CHAT_ID}&text={text}")
+    requests.post(f"https://api.telegram.org/bot{TELE_TOKEN}/sendMessage?chat_id={CHAT_ID}&text={text}")
 
     conn = sqlite3.connect("../data/orders.db")
     c = conn.cursor()
@@ -125,7 +125,7 @@ def close_order(symbol, order_type, volume, order):
 
     # sends the information through the telegram bot to the group
     text = f'Símbolo: {request["symbol"]}.\nComentário: {order.comment}.\nPreço da venda: {order.price}.\nVolume da venda: {order.volume}.'
-    # requests.post(f"https://api.telegram.org/bot{TELE_TOKEN}/sendMessage?chat_id={CHAT_ID}&text={text}")
+    requests.post(f"https://api.telegram.org/bot{TELE_TOKEN}/sendMessage?chat_id={CHAT_ID}&text={text}")
 
     conn = sqlite3.connect("../data/orders.db")
     c = conn.cursor()
