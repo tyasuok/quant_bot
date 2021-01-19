@@ -13,27 +13,32 @@ def get_monthly_rets(tick_pickle="../data/ibovespa_tickers.zip"):
     tickers = pd.read_pickle(tick_pickle)
     tickers = tickers + ".SAO"
 
-    today = datetime.date.today()
-    year = today.year
-    month = today.month - 1
+    months = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+
+    last_month = datetime.date.today().replace(day=1) - datetime.timedelta(days=1)
+    year = last_month.year
+    month = last_month.month
     days_month = monthrange(year, month)[1]
 
     errors = []
     rets = {}
     count = 0
 
+    print(last_month)
+    print(datetime.datetime(last_month.year, last_month.month, monthrange(last_month.year, last_month.month)[1]).date())
+
     for i in tickers:
         if count % 5 != 0 or count == 0:
             try:
                 complete = data.DataReader(i,
                                             "av-daily-adjusted",
-                                            start=datetime.datetime(year, month, 1), #'2017-09-01',
-                                            end=datetime.datetime(year, month, days_month)
+                                            start=last_month.replace(day=1),
+                                            end=datetime.datetime(last_month.year, last_month.month, monthrange(last_month.year, last_month.month)[1]).date()
                                             )
                 rets[i] = complete["adjusted close"][-1]/complete["adjusted close"][0]
-            except:
+            except Exception as e:
                 errors.append(i)
-                print(f"ERROR IN {i}")
+                print(f"ERROR IN {i}: {e}")
             count += 1
         else:
             time.sleep(60)
@@ -52,3 +57,6 @@ def strat(best_pickle="../data/returns_last_month.zip"):
     lst = df.sort_values(0, axis=1, ascending=False).iloc[0, :10].index.str[:-4] + "F"
 
     return list(lst)
+
+if __name__ == "__main__":
+    get_monthly_rets()

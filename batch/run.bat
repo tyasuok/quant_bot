@@ -1,1 +1,1 @@
-cd /d "D:/dev/quant/src/" & workon quant_bot & py "D:/dev/quant/src/main.py"
+cd /d "D:/dev/quant_bot/src/" & workon quant_bot & py "D:/dev/quant_bot/src/main.py"
