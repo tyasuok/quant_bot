@@ -10,6 +10,9 @@ yf.pdr_override()
 from pandas_datareader import data as web
 
 def _make_tables():
+    """
+    creates the data/orders.db SQLite database and the open and close tables
+    """
     conn = sqlite3.connect("../data/orders.db")
     c = conn.cursor()
     c.execute("""
@@ -43,6 +46,10 @@ def _make_tables():
             """)
 
 def _reset_tables():
+    """
+    Drops both open and close tables, DON'T USE unless you are sure this is what you want to do,
+    to be substituted (mostly) by better query in the sell_all() function
+    """
     conn = sqlite3.connect("../data/orders.db")
     c = conn.cursor()
     c.execute("DROP TABLE open;")
