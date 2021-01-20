@@ -58,6 +58,9 @@ def _reset_tables():
 def open_order(symbol, order_type, volume):
     """
     Function that opens an order, atm either buy or sell
+    :symbol: symbol of the stock you want to open an order for (e.g BRML3F)
+    :order_type: either 'buy' or 'sell'
+    :volume: volume of the order
     """
     symbol_inf = mt5.symbol_info_tick(symbol)
 
@@ -104,6 +107,10 @@ def open_order(symbol, order_type, volume):
 def close_order(symbol, order_type, volume, order):
     """
     Function that opens an order, atm either buy or sell
+    :symbol: symbol of the stock you want to open an order for (e.g BRML3F)
+    :order_type: either 'buy' or 'sell'
+    :volume: volume of the order
+    :order: order number, necessary to modify open orders
     """
     symbol_inf = mt5.symbol_info_tick(symbol)
 
@@ -149,7 +156,9 @@ def close_order(symbol, order_type, volume, order):
     return order
 
 def sell_all():
-    
+    """
+    Queries the open/close tables and sells the open orders
+    """
     conn = sqlite3.connect("../data/orders.db")
     c = conn.cursor()
     query = list(c.execute("""SELECT symbol, volume, order_n
