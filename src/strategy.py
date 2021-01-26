@@ -58,5 +58,45 @@ def strat(best_pickle="../data/returns_last_month.zip"):
 
     return list(lst)
 
+def vwap(symbol="PETR4F"):
+    """
+    fix decimal error things
+    take today's data
+    make code prettier
+    """
+    # datetime.now(tz=pytz.UTC)
+    # datetime.utcnow()
+    ticks = mt5.copy_ticks_range(
+            "PETR4F",
+            datetime.datetime(2021, 1, 5, 10, 2, tzinfo=pytz.UTC),
+            datetime.datetime(2021, 1, 5, 18, tzinfo=pytz.UTC), 
+            mt5.COPY_TICKS_TRADE
+            )
+    ticks = pd.DataFrame(ticks)
+    ticks["time"] = pd.to_datetime(ticks["time"], unit="s")
+    ticks["Symbol"] = symbol 
+    ticks.index = ticks["time"]
+    
+    grouped = ticks.groupby("Symbol")
+
+    ask = grouped["ask"].resample("1Min").ohlc()
+
+    vol = grouped["volume"].resample("1Min").sum()
+    ask_wv = pd.concat([ask, vol], axis=1)
+    ask_wv["tpv"] = (ask_wv["high"] + ask_wv["low"] + ask_wv["close"]) / 3 * ask_wv["volume"]
+    ask = ask.reset_index()
+
+    ask_wv["cumulative_vol"] = ask_wv["volume"].cumsum()
+    ask_wv["cumulative_tpv"] =  ask_wv["tpv"].cumsum()
+    ask_wv["vwap"] = ask_wv["cumulative_tpv"] / ask_wv["cumulative_vol"]
+
+    ask_wv = ask_wv.reset_index()
+    ask_wv.index = ask_wv["time"]
+    ask_wv.drop(["time", "Symbol"], axis=1, inplace=True)
+
+    ax1 = mpf.make_addplot(ask_wv["vwap"])
+    mpf.plot(ask_wv, type="candle", title=symbol, addplot=ax1)
+    return [ask_wv["vwap"], ask_wv]
+
 if __name__ == "__main__":
     get_monthly_rets()
