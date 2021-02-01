@@ -4,6 +4,9 @@ from pandas_datareader import data
 import datetime
 from calendar import monthrange
 import time
+import pytz
+import mplfinance as mpf
+import os
 
 def get_monthly_rets(tick_pickle="../data/ibovespa_tickers.zip"):
     """
@@ -58,19 +61,18 @@ def strat(best_pickle="../data/returns_last_month.zip"):
 
     return list(lst)
 
-def vwap(symbol="PETR4F"):
+def vwap(symbol="PETR4F", show=False, send=True):
     """
-    fix decimal error things
-    take today's data
+    fix decimal error things - to-do
+    take today's data - testing
     make code prettier
-    auto-delete image, or make ../img folder
     """
-    # datetime.now(tz=pytz.UTC)
-    # datetime.utcnow()
+    # datetime.now(tz=pytz.UTC) - alternative for datetime.datetime.utcnow()
+    today = datetime.date.today()
     ticks = mt5.copy_ticks_range(
-            "PETR4F",
-            datetime.datetime(2021, 1, 5, 10, 2, tzinfo=pytz.UTC),
-            datetime.datetime(2021, 1, 5, 18, tzinfo=pytz.UTC), 
+            symbol,
+            datetime.datetime(today.year, today.month, today.day, 10, 5, tzinfo=pytz.UTC),
+            datetime.datetime.utcnow(), 
             mt5.COPY_TICKS_TRADE
             )
     ticks = pd.DataFrame(ticks)
@@ -95,10 +97,17 @@ def vwap(symbol="PETR4F"):
     ask_wv.index = ask_wv["time"]
     ask_wv.drop(["time", "Symbol"], axis=1, inplace=True)
 
-    ax1 = mpf.make_addplot(ask_wv["vwap"])
-    fig = mpf.plot(ask_wv, type="candle", title=symbol, addplot=ax1, savefig="vwap.png")
-    send_image(image_file="vwap.png")
+    if show:
+        ax1 = mpf.make_addplot(ask_wv["vwap"])
+        fig = mpf.plot(ask_wv, type="candle", title=symbol, addplot=ax1, savefig="vwap.png")
+        if send:
+            send_image(image_file="vwap.png")
+        os.remove("vwap.png")
+
     return [ask_wv["vwap"], ask_wv]
+
+def vwap_reversion():
+    pass
 
 if __name__ == "__main__":
     get_monthly_rets()
