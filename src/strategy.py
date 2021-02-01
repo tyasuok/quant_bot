@@ -63,6 +63,7 @@ def vwap(symbol="PETR4F"):
     fix decimal error things
     take today's data
     make code prettier
+    auto-delete image, or make ../img folder
     """
     # datetime.now(tz=pytz.UTC)
     # datetime.utcnow()
@@ -95,7 +96,8 @@ def vwap(symbol="PETR4F"):
     ask_wv.drop(["time", "Symbol"], axis=1, inplace=True)
 
     ax1 = mpf.make_addplot(ask_wv["vwap"])
-    mpf.plot(ask_wv, type="candle", title=symbol, addplot=ax1)
+    fig = mpf.plot(ask_wv, type="candle", title=symbol, addplot=ax1, savefig="vwap.png")
+    send_image(image_file="vwap.png")
     return [ask_wv["vwap"], ask_wv]
 
 if __name__ == "__main__":
