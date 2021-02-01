@@ -8,6 +8,7 @@ import yfinance as yf
 import pandas as pd
 yf.pdr_override()
 from pandas_datareader import data as web
+import subprocess
 
 def _make_tables():
     """
@@ -158,11 +159,16 @@ def close_order(symbol, order_type, volume, order):
 def sell_all():
     """
     Queries the open/close tables and sells the open orders
+    To-do: account for failed open orders (maybe something to so with comments)
     """
     conn = sqlite3.connect("../data/orders.db")
     c = conn.cursor()
     query = list(c.execute("""SELECT symbol, volume, order_n
-                              FROM open;"""))
+                              FROM open as o
+                              WHERE order_n NOT IN (
+                                SELECT order_n
+                                FROM close
+                                );"""))
     conn.close()
 
     for i in query:
@@ -170,12 +176,16 @@ def sell_all():
 
 # Plotting functions
 
-def send_image(path):
-    with open(path, "rb") as img:
-        requests.post(
-                      "https://api.telegram.org/bot{TELE_TOKEN}/sendPhoto?chat_id={CHAT_ID}", 
-                      files={"photo": img}
-                     )
+def send_image(image_file, bot_token=TELE_TOKEN, chat_id=CHAT_ID):
+    """
+    receive a PATH of an image file and send this file to a chat, through a 
+    telegram bot
+    :bot_token: the token needed to access the telegram's bot
+    :image_file: image's PATH/name
+    :chat_id: the ID needed to access the telegram's chat'
+    """
+    command = 'curl -s -X POST https://api.telegram.org/bot' + bot_token + '/sendPhoto -F chat_id=' + chat_id + " -F photo=@" + image_file 
+    subprocess.call(command.split(' '))
 
 def img_portfolio(sizes, stocks):
     """
