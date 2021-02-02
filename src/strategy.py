@@ -1,5 +1,6 @@
 import pandas as pd
 # from passwords import *
+import MetaTrader5 as mt5
 from pandas_datareader import data
 import datetime
 from calendar import monthrange
@@ -7,6 +8,7 @@ import time
 import pytz
 import mplfinance as mpf
 import os
+from functions import *
 
 def get_monthly_rets(tick_pickle="../data/ibovespa_tickers.zip"):
     """
@@ -65,49 +67,38 @@ def vwap(symbol="PETR4F", show=False, send=True):
     """
     fix decimal error things - to-do
     take today's data - testing
-    make code prettier
     """
     # datetime.now(tz=pytz.UTC) - alternative for datetime.datetime.utcnow()
     today = datetime.date.today()
-    ticks = mt5.copy_ticks_range(
-            symbol,
-            datetime.datetime(today.year, today.month, today.day, 10, 5, tzinfo=pytz.UTC),
-            datetime.datetime.utcnow(), 
-            mt5.COPY_TICKS_TRADE
-            )
+    ticks = mt5.copy_rates_range("PETR4", 
+                                mt5.TIMEFRAME_M1,
+                                datetime.datetime(today.year, today.month, today.day, 9, tzinfo=pytz.UTC),
+                                datetime.datetime.utcnow()
+                                )
     ticks = pd.DataFrame(ticks)
     ticks["time"] = pd.to_datetime(ticks["time"], unit="s")
-    ticks["Symbol"] = symbol 
     ticks.index = ticks["time"]
+    ticks.drop("time", axis=1, inplace=True)
+
+    ticks["tpv"] = (ticks["high"] + ticks["low"] + ticks["close"]) / 3 * ticks["tick_volume"]
+    ticks["cumulative_vol"] = ticks["tick_volume"].cumsum()
+    ticks["cumulative_tpv"] = ticks["tpv"].cumsum()
+    ticks["vwap"] = ticks["cumulative_tpv"] / ticks["cumulative_vol"]
     
-    grouped = ticks.groupby("Symbol")
-
-    ask = grouped["ask"].resample("1Min").ohlc()
-
-    vol = grouped["volume"].resample("1Min").sum()
-    ask_wv = pd.concat([ask, vol], axis=1)
-    ask_wv["tpv"] = (ask_wv["high"] + ask_wv["low"] + ask_wv["close"]) / 3 * ask_wv["volume"]
-    ask = ask.reset_index()
-
-    ask_wv["cumulative_vol"] = ask_wv["volume"].cumsum()
-    ask_wv["cumulative_tpv"] =  ask_wv["tpv"].cumsum()
-    ask_wv["vwap"] = ask_wv["cumulative_tpv"] / ask_wv["cumulative_vol"]
-
-    ask_wv = ask_wv.reset_index()
-    ask_wv.index = ask_wv["time"]
-    ask_wv.drop(["time", "Symbol"], axis=1, inplace=True)
-
     if show:
-        ax1 = mpf.make_addplot(ask_wv["vwap"])
-        fig = mpf.plot(ask_wv, type="candle", title=symbol, addplot=ax1, savefig="vwap.png")
+        ax1 = mpf.make_addplot(ticks["vwap"])
+        fig = mpf.plot(ticks, type="candle", title=symbol, addplot=ax1, savefig="vwap.png")
         if send:
             send_image(image_file="vwap.png")
         os.remove("vwap.png")
 
-    return [ask_wv["vwap"], ask_wv]
+    return [ticks["vwap"], ticks]
 
 def vwap_reversion():
-    pass
+    pass 
 
 if __name__ == "__main__":
-    get_monthly_rets()
+    log = mt5.initialize(login=rico_demo["login"], password=rico_demo["passw"], server=rico_demo["server"])
+    print(f'ACCOUNT INFO: {mt5.account_info()}') if log else sys.exit("Nope"); 
+    # get_monthly_rets()
+    vwap("PETR4", True)
