@@ -18,8 +18,6 @@ def get_monthly_rets(tick_pickle="../data/ibovespa_tickers.zip"):
     tickers = pd.read_pickle(tick_pickle)
     tickers = tickers + ".SAO"
 
-    months = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-
     last_month = datetime.date.today().replace(day=1) - datetime.timedelta(days=1)
     year = last_month.year
     month = last_month.month
@@ -53,7 +51,7 @@ def get_monthly_rets(tick_pickle="../data/ibovespa_tickers.zip"):
     rets.to_pickle("../data/returns_last_month.zip")
     return rets
 
-def strat(best_pickle="../data/returns_last_month.zip"):
+def top_10_rets_last_month(best_pickle="../data/returns_last_month.zip"):
     """
     Pega um pickle com os retornos mensais e escolhe os 10 melhores
     o nome está genérico para mostrar na reunião e ñ dar spoiler pros membros novos
@@ -70,7 +68,7 @@ def vwap(symbol="PETR4F", show=False, send=True):
     """
     # datetime.now(tz=pytz.UTC) - alternative for datetime.datetime.utcnow()
     today = datetime.date.today()
-    ticks = mt5.copy_rates_range("PETR4", 
+    ticks = mt5.copy_rates_range(symbol, 
                                 mt5.TIMEFRAME_M1,
                                 datetime.datetime(today.year, today.month, today.day, 9, tzinfo=pytz.UTC),
                                 datetime.datetime.utcnow()
@@ -94,11 +92,37 @@ def vwap(symbol="PETR4F", show=False, send=True):
 
     return [ticks["vwap"], ticks]
 
-def vwap_reversion():
-    pass 
+def vwap_reversion(symbol, period):
+    """
+    Implements a simple mean reversion using the vwap
+    :symbol: the symbol of the instrument
+    :period: how often you want to check the last vwap against the current price (in seconds)
+    """
+    print(f"reversion {symbol} started")
+
+    # buy and sell buffers to store the orders
+    buy_buf = []
+    sell_buf = []
+
+    while True:
+        symbol_inf = mt5.symbol_info(symbol)
+        mean = vwap(symbol)[0][-1]
+        print(f"{symbol} mean: {mean}")
+
+        if symbol_inf.ask < 0.95 * mean:
+            buy_buf.append(open_order(symbol, "buy", 1))
+            print(f"{symbol} bought")
+        elif symbol_inf.ask > 1.05 * mean:
+            # sell_buf.append(open_order(symbol, "sell", 1))
+            for i in buy_buf[::-1]:
+                close_order(symbol, "sell", i.volume, i.order)
+                sell_buf.append(buy_buf.pop())
+                print(f"sold {symbol}: {i}")
+
+        for i in buy_buf:
+            print("printing {symbol} buy buffer", i)
+
+        time.sleep(period) 
 
 if __name__ == "__main__":
-    log = mt5.initialize(login=rico_demo["login"], password=rico_demo["passw"], server=rico_demo["server"])
-    print(f'ACCOUNT INFO: {mt5.account_info()}') if log else sys.exit("Nope"); 
-    # get_monthly_rets()
-    vwap("PETR4", True)
+    get_monthly_rets()
