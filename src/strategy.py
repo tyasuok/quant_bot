@@ -1,5 +1,5 @@
 import pandas as pd
-# from passwords import *
+from passwords import *
 import MetaTrader5 as mt5
 from pandas_datareader import data
 import datetime
@@ -99,6 +99,9 @@ def vwap_reversion(symbol, period):
     :period: how often you want to check the last vwap against the current price (in seconds)
     """
     print(f"reversion {symbol} started")
+
+    log = mt5.initialize(login=rico_demo["login"], password=rico_demo["passw"], server=rico_demo["server"])
+    print(f'ACCOUNT INFO: {mt5.account_info()}') if log else sys.exit("Nope"); 
 
     # buy and sell buffers to store the orders
     buy_buf = []
