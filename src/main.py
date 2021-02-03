@@ -11,11 +11,16 @@ Gerais: ñ instala pylint, ele aponta erros aleatórios com o MetaTrader5
 import sys
 import MetaTrader5 as mt5
 import time
+from multiprocessing import Process
 
 from passwords import *
 from functions import *
 from strategy import *
 # from passwords_blank import *
+def test(i, j):
+    print(i, j)
+def f(name):
+    print('hello', name)
 
 if __name__ == "__main__":
     """
@@ -45,14 +50,21 @@ if __name__ == "__main__":
     # print(open_order("SMLS3F", "buy", 1))
 
     # esse pega a estratégia montada em strategy.py (que retorna uma lista de ações) e compra um de cada
-    for i in strat():
-        try:
-            mt5.symbol_select(i)
-            open_order(i, "buy", 1)
-            # time.sleep(5)
-        except Exception as e:
-            print(i, e)
+    # for i in top_10_rets_last_month():
+    #     try:
+    #         mt5.symbol_select(i)
+    #         p = Process(target=vwap_reversion, args=(i, 300))
+    #         p.start()
+    #         p.join()
+    #         print(mt5.last_error())
+    #     except Exception as e:
+    #         print(i, e)
 
-    time.sleep(10)
-
-    sell_all()
+    # time.sleep(10)
+    ticker = input("SYMBOL: ")
+    vwap_reversion(ticker, 300)
+    # p = Process(target=vwap_reversion, args=("PETR4", 300))
+    # p.start()
+    # p.join()
+    # print(mt5.last_error())
+    # sell_all()
