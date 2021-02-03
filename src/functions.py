@@ -19,6 +19,7 @@ def _make_tables():
     c.execute("""
             CREATE TABLE IF NOT EXISTS open (
                 symbol TEXT,
+                type TEXT,
                 order_date DATETIME,
                 retcode INTEGER,
                 deal INTEGER,
@@ -96,9 +97,9 @@ def open_order(symbol, order_type, volume):
     # verificar a sequencia order.order, order.deal
     c.execute("""
             INSERT OR IGNORE INTO open
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
             """, (
-                 symbol, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), order.retcode,
+                 symbol, order_type, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), order.retcode,
                  order.order, order.deal, order.volume, order.price, order.bid, order.ask, order.comment   
                  )
             )
