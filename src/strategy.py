@@ -99,10 +99,6 @@ def vwap_reversion(symbol, period):
     :period: how often you want to check the last vwap against the current price (in seconds)
     """
     print(f"reversion {symbol} started")
-
-    log = mt5.initialize(login=rico_demo["login"], password=rico_demo["passw"], server=rico_demo["server"])
-    print(f'ACCOUNT INFO: {mt5.account_info()}') if log else sys.exit("Nope"); 
-
     # buy and sell buffers to store the orders
     buy_buf = []
     sell_buf = []
@@ -110,7 +106,7 @@ def vwap_reversion(symbol, period):
     while True:
         symbol_inf = mt5.symbol_info(symbol)
         mean = vwap(symbol)[0][-1]
-        print(f"{symbol} mean: {mean}")
+        print(f"{symbol} mean: {mean}\nask: {symbol_inf.ask}\nask-mean: {symbol_inf.ask-mean}")
 
         if symbol_inf.ask < 0.95 * mean:
             buy_buf.append(open_order(symbol, "buy", 1))
