@@ -11,7 +11,7 @@ Gerais: ñ instala pylint, ele aponta erros aleatórios com o MetaTrader5
 import sys
 import MetaTrader5 as mt5
 import time
-from multiprocessing import Process
+from multiprocessing import Process, Pool, Pipe
 
 from passwords import *
 from functions import *
@@ -22,6 +22,22 @@ def test(i, j):
 def f(name):
     print('hello', name)
 
+def logg(conn):
+    log = mt5.initialize(login=rico_demo["login"], password=rico_demo["passw"], server=rico_demo["server"])
+    print(f'ACCOUNT INFO: {mt5.account_info()}') if log else sys.exit("Nope"); 
+    conn.send("hello")
+
+def woo():
+    print("wooo")
+
+def f(*symbols):
+    log = mt5.initialize(login=rico_demo["login"], password=rico_demo["passw"], server=rico_demo["server"])
+    print(f'Log In successful: {mt5.account_info()}') if log else sys.exit("Nope"); 
+    with Pool() as p:
+        # p.starmap(vwap, [("PETR4",), ("CVCB3", )])
+        p.map(vwap_reversion, [i for i in args])
+
+
 if __name__ == "__main__":
     """
     dá pra inicializar e fazer o login dps se precisar:
@@ -29,8 +45,8 @@ if __name__ == "__main__":
     log = mt5.login(37130907, password=passw_test, server="MetaQuotes-Demo")"
     """
     # o log inicializa o programa e faz o login, ele retorna True se tiver sido bem sucedido e False se não
-    log = mt5.initialize(login=rico_demo["login"], password=rico_demo["passw"], server=rico_demo["server"])
-    print(f'ACCOUNT INFO: {mt5.account_info()}') if log else sys.exit("Nope"); 
+    # log = mt5.initialize(login=rico_demo["login"], password=rico_demo["passw"], server=rico_demo["server"])
+    # print(f'ACCOUNT INFO: {mt5.account_info()}') if log else sys.exit("Nope"); 
 
     # prints symbols in the mkt watch
     # symbols=mt5.symbols_get()
@@ -61,10 +77,8 @@ if __name__ == "__main__":
     #         print(i, e)
 
     # time.sleep(10)
-    ticker = input("SYMBOL: ")
-    vwap_reversion(ticker, 300)
-    # p = Process(target=vwap_reversion, args=("PETR4", 300))
-    # p.start()
-    # p.join()
-    # print(mt5.last_error())
+    # ticker = input("SYMBOL: ")
+    # vwap_reversion(ticker, 300)
+
+    f("PETR4", "CVCB3")
     # sell_all()
