@@ -1,3 +1,4 @@
+import os
 import requests
 import datetime
 import sqlite3
@@ -58,16 +59,34 @@ def _reset_tables():
     c.execute("DROP TABLE close;")
 
 def summary(send=False):
+    """
+    returns a summary of your positions/performance
+    (positions DataFrame, total spent, account info)
+    :send: boolean, decides whether the info gets sent to telegram or not
+    """
     df = pd.DataFrame(list(mt5.positions_get()), columns=mt5.positions_get()[0]._asdict().keys())
     df.drop(['time_update', 'time_msc', 'time_update_msc', 'external_id'], axis=1, inplace=True)
     df["proportion"] = df["volume"] / df["volume"].sum()
 
-    if send:
-        img = img_portfolio(df["proportion"], df["symbol"])
-        send_image(image_file=img)
-        os.remove(img)
+    img = img_portfolio(df["proportion"], df["symbol"])
 
-    return df
+    conn = sqlite3.connect("../data/orders.db")
+    c = conn.cursor()
+    spent = c.execute("""SELECT SUM(total_price)
+                         FROM (SELECT price*volume AS total_price
+                               FROM open);""")
+    for i in spent:
+        total_spent = i[0]
+    info = mt5.account_info()
+
+    if send:
+        send_image(image_file=img)
+        text = f"Balanço: {info.balance}.\nEquity: {info.equity}.\nTotal investido: {total_spent}"
+        requests.post(f"https://api.telegram.org/bot{TELE_TOKEN}/sendMessage?chat_id={CHAT_ID}&text={text}")
+
+    os.remove(img)
+
+    return df, spent, info
 
 def open_order(symbol, order_type, volume, tp, send=False):
     """
@@ -91,7 +110,7 @@ def open_order(symbol, order_type, volume, tp, send=False):
         "symbol": symbol,
         "volume": float(volume),
         "price": order_types[order_type][1],
-        "tp": tp,
+        "tp": float(tp),
         "type": order_types[order_type][0],
         "deviation": 2, # em pontos
         "type_time": mt5.ORDER_TIME_GTC, # good till cancelled
