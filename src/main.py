@@ -40,6 +40,11 @@ def f(symbol):
     print(f'Log In successful: {mt5.account_info()}') if log else sys.exit("Nope");
     vwap_reversion(symbol, 300)
 
+def g(send):
+    print("Summary will be sent every 10 minutes")
+    summary(send)
+    time.sleep(600)
+
 if __name__ == "__main__":
     """
     dá pra inicializar e fazer o login dps se precisar:
@@ -49,6 +54,9 @@ if __name__ == "__main__":
     # o log inicializa o programa e faz o login, ele retorna True se tiver sido bem sucedido e False se não
     # log = mt5.initialize(login=rico_demo["login"], password=rico_demo["passw"], server=rico_demo["server"])
     # print(f'ACCOUNT INFO: {mt5.account_info()}') if log else sys.exit("Nope"); 
+    # mt5.symbol_select("SMLS3F")
+    # open_order("PETR4F", "buy", 5, 100)
+    # print(summary(send=True))
 
     # prints symbols in the mkt watch
     # symbols=mt5.symbols_get()
@@ -64,8 +72,6 @@ if __name__ == "__main__":
     """
 
     # função importada de functions.py que abre uma ordem de compra de 1 unidade
-    # mt5.symbol_select("SMLS3F")
-    # print(open_order("SMLS3F", "buy", 1))
 
     # esse pega a estratégia montada em strategy.py (que retorna uma lista de ações) e compra um de cada
     # for i in top_10_rets_last_month():
@@ -91,3 +97,6 @@ if __name__ == "__main__":
     for i in top_10_rets_last_month():
         p = Process(target=f, args=(i,))
         p.start()
+
+    s = Process(target=g, args=(True,))
+    s.start()
