@@ -64,29 +64,32 @@ def summary(send=False):
     (positions DataFrame, total spent, account info)
     :send: boolean, decides whether the info gets sent to telegram or not
     """
-    df = pd.DataFrame(list(mt5.positions_get()), columns=mt5.positions_get()[0]._asdict().keys())
-    df.drop(['time_update', 'time_msc', 'time_update_msc', 'external_id'], axis=1, inplace=True)
-    df["proportion"] = df["volume"] / df["volume"].sum()
+    try:
+        df = pd.DataFrame(list(mt5.positions_get()), columns=mt5.positions_get()[0]._asdict().keys())
+        df.drop(['time_update', 'time_msc', 'time_update_msc', 'external_id'], axis=1, inplace=True)
+        df["proportion"] = df["volume"] / df["volume"].sum()
+        img = img_portfolio(df["proportion"], df["symbol"])
+        conn = sqlite3.connect("../data/orders.db")
+        c = conn.cursor()
+        spent = c.execute("""SELECT SUM(total_price)
+                             FROM (SELECT price*volume AS total_price
+                                   FROM open);""")
+        for i in spent:
+            total_spent = i[0]
+        info = mt5.account_info()
 
-    img = img_portfolio(df["proportion"], df["symbol"])
+        if send:
+            send_image(image_file=img)
+            text = f"Balanço: {info.balance}.\nEquity: {info.equity}.\nTotal investido: {total_spent}"
+            requests.post(f"https://api.telegram.org/bot{TELE_TOKEN}/sendMessage?chat_id={CHAT_ID}&text={text}")
 
-    conn = sqlite3.connect("../data/orders.db")
-    c = conn.cursor()
-    spent = c.execute("""SELECT SUM(total_price)
-                         FROM (SELECT price*volume AS total_price
-                               FROM open);""")
-    for i in spent:
-        total_spent = i[0]
-    info = mt5.account_info()
+        os.remove(img)
 
-    if send:
-        send_image(image_file=img)
-        text = f"Balanço: {info.balance}.\nEquity: {info.equity}.\nTotal investido: {total_spent}"
-        requests.post(f"https://api.telegram.org/bot{TELE_TOKEN}/sendMessage?chat_id={CHAT_ID}&text={text}")
+        return df, spent, info
 
-    os.remove(img)
+    except Exception as e:
+        print(e)
 
-    return df, spent, info
 
 def open_order(symbol, order_type, volume, tp, send=False):
     """
