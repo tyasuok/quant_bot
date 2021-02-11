@@ -30,10 +30,10 @@ def logg(conn):
 def woo():
     print("wooo")
 
-def f(*symbols):
-    log = mt5.initialize(login=rico_demo["login"], password=rico_demo["passw"], server=rico_demo["server"])
-    print(f'Log In successful: {mt5.account_info()}') if log else sys.exit("Nope");
-    vwap_reversion()
+# def f(*symbols):
+#     log = mt5.initialize(login=rico_demo["login"], password=rico_demo["passw"], server=rico_demo["server"])
+#     print(f'Log In successful: {mt5.account_info()}') if log else sys.exit("Nope");
+#     vwap_reversion()
 
 def f(symbol):
     log = mt5.initialize(login=rico_demo["login"], password=rico_demo["passw"], server=rico_demo["server"])
@@ -83,7 +83,11 @@ if __name__ == "__main__":
     # vwap_reversion(ticker, 300)
 
     # f("PETR4", "CVCB3")
-    with Pool() as p:
-        # p.starmap(vwap, [("PETR4",), ("CVCB3", )])
-        p.map(f, top_10_rets_last_month())
+    # with Pool() as p:
+    #     # p.starmap(vwap, [("PETR4",), ("CVCB3", )])
+    #     p.map(f, top_10_rets_last_month())
     # sell_all()
+
+    for i in top_10_rets_last_month():
+        p = Process(target=f, args=(i,))
+        p.start()

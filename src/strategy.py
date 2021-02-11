@@ -108,18 +108,18 @@ def vwap_reversion(symbol, period):
         mean = vwap(symbol)[0][-1]
         print(f"{symbol} mean: {mean}\nask: {symbol_inf.ask}\nask-mean: {symbol_inf.ask-mean}")
 
-        if symbol_inf.ask < 0.95 * mean:
-            buy_buf.append(open_order(symbol, "buy", 1))
+        if symbol_inf.ask < 0.995 * mean:
+            buy_buf.append(open_order(symbol, "buy", 10, symbol_inf.ask*1.005))
             print(f"{symbol} bought")
-        elif symbol_inf.ask > 1.05 * mean:
-            # sell_buf.append(open_order(symbol, "sell", 1))
-            for i in buy_buf[::-1]:
-                close_order(symbol, "sell", i.volume, i.order)
-                sell_buf.append(buy_buf.pop())
-                print(f"sold {symbol}: {i}")
+        # elif symbol_inf.ask > 1.005 * mean:
+        #     # sell_buf.append(open_order(symbol, "sell", 1))
+        #     for i in buy_buf[::-1]:
+        #         close_order(symbol, "sell", i.volume, i.order)
+        #         sell_buf.append(buy_buf.pop())
+        #         print(f"sold {symbol}: {i}")
 
-        for i in buy_buf:
-            print("printing {symbol} buy buffer", i)
+        for i, j in enumerate(buy_buf):
+            print(f"printing {symbol} buy buffer[{i}]:", j)
 
         time.sleep(period) 
 

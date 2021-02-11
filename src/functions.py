@@ -57,7 +57,10 @@ def _reset_tables():
     c.execute("DROP TABLE open;")
     c.execute("DROP TABLE close;")
 
-def open_order(symbol, order_type, volume):
+def summary():
+    pass
+
+def open_order(symbol, order_type, volume, tp):
     """
     Function that opens an order, atm either buy or sell
     :symbol: symbol of the stock you want to open an order for (e.g BRML3F)
@@ -78,8 +81,9 @@ def open_order(symbol, order_type, volume):
         "magic": 69420,
         "symbol": symbol,
         "volume": float(volume),
-        "type": order_types[order_type][0],
         "price": order_types[order_type][1],
+        "tp": tp,
+        "type": order_types[order_type][0],
         "deviation": 2, # em pontos
         "type_time": mt5.ORDER_TIME_GTC, # good till cancelled
         "type_filling": mt5.ORDER_FILLING_RETURN
