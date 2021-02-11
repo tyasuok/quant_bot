@@ -57,10 +57,19 @@ def _reset_tables():
     c.execute("DROP TABLE open;")
     c.execute("DROP TABLE close;")
 
-def summary():
-    pass
+def summary(send=False):
+    df = pd.DataFrame(list(mt5.positions_get()), columns=mt5.positions_get()[0]._asdict().keys())
+    df.drop(['time_update', 'time_msc', 'time_update_msc', 'external_id'], axis=1, inplace=True)
+    df["proportion"] = df["volume"] / df["volume"].sum()
 
-def open_order(symbol, order_type, volume, tp):
+    if send:
+        img = img_portfolio(df["proportion"], df["symbol"])
+        send_image(image_file=img)
+        os.remove(img)
+
+    return df
+
+def open_order(symbol, order_type, volume, tp, send=False):
     """
     Function that opens an order, atm either buy or sell
     :symbol: symbol of the stock you want to open an order for (e.g BRML3F)
@@ -93,8 +102,9 @@ def open_order(symbol, order_type, volume, tp):
     order = mt5.order_send(request)
 
     # sends the information through the telegram bot to the group
-    text = f'Símbolo: {request["symbol"]}.\nComentário: {order.comment}.\nPreço da compra: {order.price}.\nVolume da compra: {order.volume}.'
-    requests.post(f"https://api.telegram.org/bot{TELE_TOKEN}/sendMessage?chat_id={CHAT_ID}&text={text}")
+    if send:
+        text = f'Símbolo: {request["symbol"]}.\nComentário: {order.comment}.\nPreço da compra: {order.price}.\nVolume da compra: {order.volume}.'
+        requests.post(f"https://api.telegram.org/bot{TELE_TOKEN}/sendMessage?chat_id={CHAT_ID}&text={text}")
 
     conn = sqlite3.connect("../data/orders.db")
     c = conn.cursor()
@@ -212,7 +222,7 @@ def img_portfolio(sizes, stocks):
     #plt.show()
     name = "carteira_quant.jpg"
     print(plt.savefig(name))
-    return (name)
+    return name
 
 def pic_portfolio_performance(rets):
     """
