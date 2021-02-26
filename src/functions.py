@@ -1,6 +1,8 @@
 import os
 import requests
 import datetime
+import time
+import pickle
 import sqlite3
 import MetaTrader5 as mt5
 from passwords import *
@@ -58,7 +60,7 @@ def _reset_tables():
     c.execute("DROP TABLE open;")
     c.execute("DROP TABLE close;")
 
-def summary(send=False):
+def summary(send=True):
     """
     returns a summary of your positions/performance
     (positions DataFrame, total spent, account info)
@@ -80,7 +82,7 @@ def summary(send=False):
 
         if send:
             send_image(image_file=img)
-            text = f"Balanço: {info.balance}.\nEquity: {info.equity}.\nTotal investido: {total_spent}"
+            text = f"Balanço: R${info.balance}\nEquity: R${info.equity}\nTotal investido: R${total_spent}"
             requests.post(f"https://api.telegram.org/bot{TELE_TOKEN}/sendMessage?chat_id={CHAT_ID}&text={text}")
 
         os.remove(img)
@@ -90,6 +92,42 @@ def summary(send=False):
     except Exception as e:
         print(e)
 
+def test():
+    text = "test"
+    requests.post(f"https://api.telegram.org/bot{TELE_TOKEN}/sendMessage?chat_id={CHAT_ID}&text={text}")
+
+
+def tlgrm_polling(freq=30):
+    """
+    Long polling for the telegram bot, gets commands sent to it and calls for whatever function it asked for
+    """
+    while True:
+        functions = {
+                "resumo": summary,
+                "teste": test
+                }
+
+        with open("../data/tlgrm.zip", "rb") as f:
+            last = pickle.load(f)
+
+        df = pd.read_json(f"https://api.telegram.org/bot{TELE_TOKEN}/getUpdates?offset={last + 1}")["result"]
+        for i in df:
+            msg = i["message"]["text"].replace("/", "")
+            if msg in functions.keys():
+                functions[msg]()
+            else:
+                text = f"Não existe o comando {msg}"
+                requests.post(f"https://api.telegram.org/bot{TELE_TOKEN}/sendMessage?chat_id={CHAT_ID}&text={text}")
+
+        # update offset everytime it runs
+        try:
+            new_last = df.iloc[-1]["update_id"]
+            with open("../data/tlgrm.zip", "wb") as f:
+                pickle.dump(new_last, f)
+        except:
+            print("No new messages")
+
+        time.sleep(freq)
 
 def open_order(symbol, order_type, volume, tp, send=False):
     """
@@ -196,7 +234,7 @@ def close_order(symbol, order_type, volume, order):
 def sell_all():
     """
     Queries the open/close tables and sells the open orders
-    To-do: account for failed open orders (maybe something to so with comments)
+    To-do: account for failed open orders (maybe something to do with comments)
     """
     conn = sqlite3.connect("../data/orders.db")
     c = conn.cursor()
@@ -281,8 +319,9 @@ def pic_portfolio_performance(rets):
     return (name)
 
 if __name__ == "__main__":
-    reset_check = input("Do you want to reset the tables? (type n if this is the initial setup) (y/n) ")
-    if reset_check == "y":
-        _reset_tables()
+    # reset_check = input("Do you want to reset the tables? (type n if this is the initial setup) (y/n) ")
+    # if reset_check == "y":
+    #     _reset_tables()
 
-    _make_tables()
+    # _make_tables()
+    tlgrm_polling()
