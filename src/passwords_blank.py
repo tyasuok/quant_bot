@@ -6,7 +6,7 @@ test = {
 
 rico = {
     "login": "LOGIN",
-    "passw": "SENHA"
+    "passw": "SENHA",
     "server": "Rico-PRD"
 }
 
