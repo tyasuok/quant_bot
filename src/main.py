@@ -38,12 +38,20 @@ def woo():
 def f(symbol):
     log = mt5.initialize(login=rico_demo["login"], password=rico_demo["passw"], server=rico_demo["server"])
     print(f'Log In successful: {mt5.account_info()}') if log else sys.exit("Nope");
+    time.sleep(20)
     vwap_reversion(symbol, 300)
 
 def g(send):
+    log = mt5.initialize(login=rico_demo["login"], password=rico_demo["passw"], server=rico_demo["server"])
     print("Summary will be sent every 10 minutes")
-    summary(send)
-    time.sleep(600)
+    while True:
+        time.sleep(600)
+        summary(send)
+        print("Summary sent")
+
+def h():
+    log = mt5.initialize(login=rico_demo["login"], password=rico_demo["passw"], server=rico_demo["server"])
+    tlgrm_polling()
 
 if __name__ == "__main__":
     """
@@ -98,5 +106,5 @@ if __name__ == "__main__":
         p = Process(target=f, args=(i,))
         p.start()
 
-    s = Process(target=g, args=(True,))
+    s = Process(target=h)
     s.start()
