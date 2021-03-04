@@ -319,9 +319,8 @@ def pic_portfolio_performance(rets):
     return (name)
 
 if __name__ == "__main__":
-    # reset_check = input("Do you want to reset the tables? (type n if this is the initial setup) (y/n) ")
-    # if reset_check == "y":
-    #     _reset_tables()
+    reset_check = input("Do you want to reset the tables? (type n if this is the initial setup) (y/n) ")
+    if reset_check == "y":
+        _reset_tables()
 
-    # _make_tables()
-    tlgrm_polling()
+    _make_tables()
