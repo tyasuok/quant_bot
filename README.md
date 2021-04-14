@@ -2,6 +2,8 @@
 
 ## Como baixar/modificar o código
 
+*Documentação: [https://www.mql5.com/en/docs/integration/python_metatrader5](https://www.mql5.com/en/docs/integration/python_metatrader5)*
+
 1. É necessário baixar o Metatrader5 do site: <a href=https://www.metatrader5.com/en/download>https://www.metatrader5.com/en/download</a>
 2. No CMD vá ao diretório no qual você quer o programa e rode: `git clone https://github.com/thomas-yasuoka/quant_bot.git`, isso irá criar uma pasta quant_bot
 3. Vá para a pasta `cd quant_bot` e instale as dependências (é recomendado a criação de um ambiente virtual): `pip install -r requirements.txt`
